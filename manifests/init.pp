@@ -1,6 +1,6 @@
 class r {
 
-  package { 'r-base': ensure => installed }
+    package { 'r-base': ensure => installed }
 
 }
 
