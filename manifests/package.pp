@@ -1,3 +1,28 @@
+# == Class: r::package
+#
+# Install R CRAN based packages
+#
+# === Parameters
+#
+# - The $r_path - path to R
+# - The $repo - URL to CRAN mirror
+# - The $dependencies - boolean, install depenencies or not
+#
+#
+# === Examples
+#
+#  r::package { 'devtools': repo => "http://cran.stat.auckland.ac.nz/", dependencies => true }
+#
+#
+# === Authors
+#
+# Piers Harding <piers@ompka.net>
+#
+# === Copyright
+#
+# Copyright 2014 Piers Harding.
+#
+#
 define r::package($r_path = "/usr/bin/R", $repo = "http://cran.rstudio.com", $dependencies = false) {
 
   exec { "install_r_package_$name":
@@ -8,20 +33,5 @@ define r::package($r_path = "/usr/bin/R", $repo = "http://cran.rstudio.com", $de
     unless  => "$r_path -q -e '\"$name\" %in% installed.packages()' | grep 'TRUE'",
     require => Class['r']
   }
-
-}
-
-define r::github_package($r_path = "/usr/bin/R", $repo = "http://cran.rstudio.com", $gitrepo = "hadley", $build_vignettes = false) {
-
-    $r_prefix = "local({r <- getOption('repos'); r['CRAN'] <- '$repo'; options(repos=r)}); library(devtools); "
-
-    exec { "install_r_github_$name":
-        command => $build_vignettes ? {
-            true => "$r_path -e \"$r_prefix devtools::install_github('$gitrepo/$name',  build_vignettes = TRUE)\"",
-            default => "$r_path -e \"$r_prefix devtools::install_github('$gitrepo/$name',  build_vignettes = FALSE)\""
-        },
-        unless  => "$r_path -q -e '\"$name\" %in% installed.packages()' | grep 'TRUE'",
-        require => Class['r']
-    }
 
 }
