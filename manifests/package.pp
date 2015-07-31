@@ -30,6 +30,7 @@ define r::package($r_path = "/usr/bin/R", $repo = "http://cran.rstudio.com", $de
       true    => "$r_path -e \"install.packages('$name', repos='$repo', dependencies = TRUE)\"",
       default => "$r_path -e \"install.packages('$name', repos='$repo', dependencies = FALSE)\""
     },
+    timeout => 600,
     unless  => "$r_path -q -e '\"$name\" %in% installed.packages()' | grep 'TRUE'",
     require => Class['r']
   }

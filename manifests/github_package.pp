@@ -34,6 +34,7 @@ define r::github_package($r_path = "/usr/bin/R", $repo = "http://cran.rstudio.co
             true => "$r_path -e \"$r_prefix devtools::install_github('$gitrepo/$name',  build_vignettes = TRUE)\"",
             default => "$r_path -e \"$r_prefix devtools::install_github('$gitrepo/$name',  build_vignettes = FALSE)\""
         },
+        timeout => 600,
         unless  => "$r_path -q -e '\"$name\" %in% installed.packages()' | grep 'TRUE'",
         require => Class['r']
     }
