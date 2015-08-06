@@ -25,18 +25,25 @@
 #
 #
 
-define r::github_package($r_path = "/usr/bin/R", $repo = "http://cran.rstudio.com", $gitrepo = "hadley", $build_vignettes = false) {
+define r::github_package($r_path = "/usr/bin/R", $repo = "http://cran.rstudio.com", $gitrepo = "hadley", $build_vignettes = false, $proxy=false) {
+  if $proxy {
+    $proxy_str="http_proxy=\"${proxy}\""
+  }
+  else {
+    $proxy_str = ""
+  }
 
-    $r_prefix = "local({r <- getOption('repos'); r['CRAN'] <- '${repo}'; options(repos=r)}); library(devtools); "
+  $r_prefix = "local({r <- getOption('repos'); r['CRAN'] <- '${repo}'; options(repos=r)}); library(devtools); "
 
-    exec { "install_r_github_$name":
-        command => $build_vignettes ? {
-            true => "${r_path} -e \"${r_prefix} devtools::install_github('${gitrepo}/${name}',  build_vignettes = TRUE)\"; ${r_path} -q -e '\"${name}\" %in% installed.packages()' | grep 'TRUE'",
-            default => "${r_path} -e \"${r_prefix} devtools::install_github('${gitrepo}/${name}',  build_vignettes = FALSE)\"; ${r_path} -q -e '\"${name}\" %in% installed.packages()' | grep 'TRUE'"
-        },
-        timeout => 600,
-        unless  => "${r_path} -q -e '\"${name}\" %in% installed.packages()' | grep 'TRUE'",
-        require => Class['r']
-    }
+  exec { "install_r_github_$name":
+    command => $build_vignettes ? {
+      true => "${r_path} -e \"${r_prefix} devtools::install_github('${gitrepo}/${name}',  build_vignettes = TRUE)\"; ${r_path} -q -e '\"${name}\" %in% installed.packages()' | grep 'TRUE'",
+      default => "${r_path} -e \"${r_prefix} devtools::install_github('${gitrepo}/${name}',  build_vignettes = FALSE)\"; ${r_path} -q -e '\"${name}\" %in% installed.packages()' | grep 'TRUE'"
+    },
+    environment => "${proxy_str}",
+    timeout => 600,
+    unless  => "${r_path} -q -e '\"${name}\" %in% installed.packages()' | grep 'TRUE'",
+    require => Class['r']
+  }
 
 }
