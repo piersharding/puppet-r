@@ -19,7 +19,7 @@
 #
 # === Copyright
 #
-# Copyright 2014 Piers Harding.
+# Copyright 2015 Piers Harding.
 #
 #
 class r {
